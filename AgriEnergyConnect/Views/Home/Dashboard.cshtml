@@ -1,9 +1,25 @@
 ﻿@{
     ViewData["Title"] = "Dashboard";
+    var role = Context.Session.GetString("Role");
+    var username = Context.Session.GetString("Username");
 }
 
-<h2>Welcome to the Dashboard</h2>
+<h2>Welcome, @username!</h2>
 
-<p>Hello, @Context.Session.GetString("Username") (@Context.Session.GetString("Role"))</p>
 
-<a asp-controller="Account" asp-action="Logout">Logout</a>
+@if (role == "Farmer")
+{
+    <div class="btn-group-vertical d-flex gap-2">
+        <a class="btn btn-success rounded-pill" asp-controller="Products" asp-action="Create">Add New Product</a>
+        <a class="btn btn-primary rounded-pill" asp-controller="Products" asp-action="Index">View My Products</a>
+    </div>
+}
+else if (role == "Employee")
+{
+    <div class="btn-group-vertical d-flex gap-2">
+        <a class="btn btn-success rounded-pill" asp-controller="FarmerProfiles" asp-action="Create">Add New Farmer Profile</a>
+        <a class="btn btn-primary rounded-pill" asp-controller="FarmerProfiles" asp-action="Index">View All Farmers</a>
+        <a class="btn btn-info text-white rounded-pill" asp-controller="Products" asp-action="Index">View All Products (With Filter)</a>
+    </div>
+}
+

@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using AgriEnergyConnect.Data;
 using AgriEnergyConnect.Models;
+using Microsoft.AspNetCore.Http;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace AgriEnergyConnect.Controllers
 {
@@ -19,84 +17,64 @@ namespace AgriEnergyConnect.Controllers
             _context = context;
         }
 
-        // GET: FarmerProfiles
         public async Task<IActionResult> Index()
         {
-            var appDbContext = _context.FarmerProfiles.Include(f => f.User);
-            return View(await appDbContext.ToListAsync());
+            return View(await _context.FarmerProfiles.Include(f => f.User).ToListAsync());
         }
 
-        // GET: FarmerProfiles/Details/5
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (id == null) return NotFound();
 
             var farmerProfile = await _context.FarmerProfiles
                 .Include(f => f.User)
                 .FirstOrDefaultAsync(m => m.FarmerProfileId == id);
-            if (farmerProfile == null)
-            {
-                return NotFound();
-            }
-
-            return View(farmerProfile);
+            return farmerProfile == null ? NotFound() : View(farmerProfile);
         }
 
-        // GET: FarmerProfiles/Create
         public IActionResult Create()
         {
-            ViewData["UserId"] = new SelectList(_context.Users, "UserId", "Password");
+            if (HttpContext.Session.GetString("Role") != "Employee")
+                return RedirectToAction("Login", "Account");
+
             return View();
         }
 
-        // POST: FarmerProfiles/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("FarmerProfileId,FullName,Region,ContactNumber,UserId")] FarmerProfile farmerProfile)
+        public async Task<IActionResult> Create(FarmerProfile farmerProfile)
         {
+            if (HttpContext.Session.GetString("Role") != "Employee")
+                return RedirectToAction("Login", "Account");
+
             if (ModelState.IsValid)
             {
-                _context.Add(farmerProfile);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                // Assign to existing Farmer User
+                var farmerUser = await _context.Users.FirstOrDefaultAsync(u => u.Role.RoleName == "Farmer");
+                if (farmerUser != null)
+                {
+                    farmerProfile.UserId = farmerUser.UserId;
+                    _context.Add(farmerProfile);
+                    await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(Index));
+                }
             }
-            ViewData["UserId"] = new SelectList(_context.Users, "UserId", "Password", farmerProfile.UserId);
+
             return View(farmerProfile);
         }
 
-        // GET: FarmerProfiles/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
+            if (id == null) return NotFound();
             var farmerProfile = await _context.FarmerProfiles.FindAsync(id);
-            if (farmerProfile == null)
-            {
-                return NotFound();
-            }
-            ViewData["UserId"] = new SelectList(_context.Users, "UserId", "Password", farmerProfile.UserId);
-            return View(farmerProfile);
+            return farmerProfile == null ? NotFound() : View(farmerProfile);
         }
 
-        // POST: FarmerProfiles/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("FarmerProfileId,FullName,Region,ContactNumber,UserId")] FarmerProfile farmerProfile)
+        public async Task<IActionResult> Edit(int id, FarmerProfile farmerProfile)
         {
-            if (id != farmerProfile.FarmerProfileId)
-            {
-                return NotFound();
-            }
+            if (id != farmerProfile.FarmerProfileId) return NotFound();
 
             if (ModelState.IsValid)
             {
@@ -104,61 +82,35 @@ namespace AgriEnergyConnect.Controllers
                 {
                     _context.Update(farmerProfile);
                     await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(Index));
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!FarmerProfileExists(farmerProfile.FarmerProfileId))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
+                    if (!_context.FarmerProfiles.Any(e => e.FarmerProfileId == id)) return NotFound();
+                    throw;
                 }
-                return RedirectToAction(nameof(Index));
             }
-            ViewData["UserId"] = new SelectList(_context.Users, "UserId", "Password", farmerProfile.UserId);
+
             return View(farmerProfile);
         }
 
-        // GET: FarmerProfiles/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
+            if (id == null) return NotFound();
             var farmerProfile = await _context.FarmerProfiles
                 .Include(f => f.User)
                 .FirstOrDefaultAsync(m => m.FarmerProfileId == id);
-            if (farmerProfile == null)
-            {
-                return NotFound();
-            }
-
-            return View(farmerProfile);
+            return farmerProfile == null ? NotFound() : View(farmerProfile);
         }
 
-        // POST: FarmerProfiles/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var farmerProfile = await _context.FarmerProfiles.FindAsync(id);
-            if (farmerProfile != null)
-            {
-                _context.FarmerProfiles.Remove(farmerProfile);
-            }
-
+            if (farmerProfile != null) _context.FarmerProfiles.Remove(farmerProfile);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
-        }
-
-        private bool FarmerProfileExists(int id)
-        {
-            return _context.FarmerProfiles.Any(e => e.FarmerProfileId == id);
         }
     }
 }

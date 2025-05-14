@@ -18,10 +18,9 @@ namespace AgriEnergyConnect.Controllers
             if (HttpContext.Session.GetString("Username") == null)
                 return RedirectToAction("Login", "Account");
 
-            ViewBag.Username = HttpContext.Session.GetString("Username");
-            ViewBag.Role = HttpContext.Session.GetString("Role");
             return View();
         }
+
 
         public IActionResult Index()
         {

@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using AgriEnergyConnect.Data;
 using AgriEnergyConnect.Models;
+using Microsoft.AspNetCore.Http;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace AgriEnergyConnect.Controllers
 {
@@ -19,84 +17,65 @@ namespace AgriEnergyConnect.Controllers
             _context = context;
         }
 
-        // GET: Products
         public async Task<IActionResult> Index()
         {
-            var appDbContext = _context.Products.Include(p => p.User);
-            return View(await appDbContext.ToListAsync());
+            string role = HttpContext.Session.GetString("Role");
+            int? currentUserId = _context.Users.FirstOrDefault(u => u.Username == HttpContext.Session.GetString("Username"))?.UserId;
+
+            var query = _context.Products.Include(p => p.User).AsQueryable();
+
+            if (role == "Farmer" && currentUserId.HasValue)
+                query = query.Where(p => p.UserId == currentUserId.Value);
+
+            return View(await query.ToListAsync());
         }
 
-        // GET: Products/Details/5
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var product = await _context.Products
-                .Include(p => p.User)
-                .FirstOrDefaultAsync(m => m.ProductId == id);
-            if (product == null)
-            {
-                return NotFound();
-            }
-
-            return View(product);
+            if (id == null) return NotFound();
+            var product = await _context.Products.Include(p => p.User).FirstOrDefaultAsync(m => m.ProductId == id);
+            return product == null ? NotFound() : View(product);
         }
 
-        // GET: Products/Create
         public IActionResult Create()
         {
-            ViewData["UserId"] = new SelectList(_context.Users, "UserId", "Password");
+            if (HttpContext.Session.GetString("Role") != "Farmer")
+                return RedirectToAction("Login", "Account");
+
             return View();
         }
 
-        // POST: Products/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ProductId,Name,Category,ProductionDate,UserId")] Product product)
+        public async Task<IActionResult> Create(Product product)
         {
-            if (ModelState.IsValid)
+            if (HttpContext.Session.GetString("Role") != "Farmer")
+                return RedirectToAction("Login", "Account");
+
+            var currentUser = await _context.Users.FirstOrDefaultAsync(u => u.Username == HttpContext.Session.GetString("Username"));
+            if (currentUser != null)
             {
+                product.UserId = currentUser.UserId;
                 _context.Add(product);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["UserId"] = new SelectList(_context.Users, "UserId", "Password", product.UserId);
+
             return View(product);
         }
 
-        // GET: Products/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
+            if (id == null) return NotFound();
             var product = await _context.Products.FindAsync(id);
-            if (product == null)
-            {
-                return NotFound();
-            }
-            ViewData["UserId"] = new SelectList(_context.Users, "UserId", "Password", product.UserId);
-            return View(product);
+            return product == null ? NotFound() : View(product);
         }
 
-        // POST: Products/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("ProductId,Name,Category,ProductionDate,UserId")] Product product)
+        public async Task<IActionResult> Edit(int id, Product product)
         {
-            if (id != product.ProductId)
-            {
-                return NotFound();
-            }
+            if (id != product.ProductId) return NotFound();
 
             if (ModelState.IsValid)
             {
@@ -104,61 +83,33 @@ namespace AgriEnergyConnect.Controllers
                 {
                     _context.Update(product);
                     await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(Index));
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!ProductExists(product.ProductId))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
+                    if (!_context.Products.Any(e => e.ProductId == id)) return NotFound();
+                    throw;
                 }
-                return RedirectToAction(nameof(Index));
             }
-            ViewData["UserId"] = new SelectList(_context.Users, "UserId", "Password", product.UserId);
+
             return View(product);
         }
 
-        // GET: Products/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var product = await _context.Products
-                .Include(p => p.User)
-                .FirstOrDefaultAsync(m => m.ProductId == id);
-            if (product == null)
-            {
-                return NotFound();
-            }
-
-            return View(product);
+            if (id == null) return NotFound();
+            var product = await _context.Products.Include(p => p.User).FirstOrDefaultAsync(m => m.ProductId == id);
+            return product == null ? NotFound() : View(product);
         }
 
-        // POST: Products/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var product = await _context.Products.FindAsync(id);
-            if (product != null)
-            {
-                _context.Products.Remove(product);
-            }
-
+            if (product != null) _context.Products.Remove(product);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
-        }
-
-        private bool ProductExists(int id)
-        {
-            return _context.Products.Any(e => e.ProductId == id);
         }
     }
 }

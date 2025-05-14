@@ -22,9 +22,7 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
+                    
 
                         @if (Context.Session.GetString("Username") == null)
                         {
@@ -43,6 +41,30 @@
                             <li class="nav-item">
                                 <a class="nav-link text-dark" asp-controller="Home" asp-action="Dashboard">Dashboard</a>
                             </li>
+
+                            @if (Context.Session.GetString("Role") == "Farmer")
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-controller="Products" asp-action="Create">Add Product</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-controller="Products" asp-action="Index">My Products</a>
+                                </li>
+                            }
+
+                            @if (Context.Session.GetString("Role") == "Employee")
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-controller="FarmerProfiles" asp-action="Create">Add Farmer</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-controller="FarmerProfiles" asp-action="Index">All Farmers</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-controller="Products" asp-action="Index">All Products</a>
+                                </li>
+                            }
+
                             <li class="nav-item">
                                 <a class="nav-link text-dark" asp-controller="Account" asp-action="Logout">Logout</a>
                             </li>
@@ -68,5 +90,9 @@
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
+    @section Scripts {
+        <partial name="_ValidationScriptsPartial" />
+    }
+
 </body>
 </html>
