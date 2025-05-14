@@ -1,0 +1,9 @@
+﻿@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<h2>Welcome to the Dashboard</h2>
+
+<p>Hello, @Context.Session.GetString("Username") (@Context.Session.GetString("Role"))</p>
+
+<a asp-controller="Account" asp-action="Logout">Logout</a>

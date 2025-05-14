@@ -1,0 +1,75 @@
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using AgriEnergyConnect.Data;
+using AgriEnergyConnect.Models;
+
+namespace AgriEnergyConnect.Controllers
+{
+    public class AccountController : Controller
+    {
+        private readonly AppDbContext _context;
+
+        public AccountController(AppDbContext context)
+        {
+            _context = context;
+        }
+
+        public IActionResult Register()
+        {
+            ViewBag.Roles = _context.Roles.ToList();
+            return View();
+        }
+
+        [HttpPost]
+        public IActionResult Register(string username, string password, int roleId)
+        {
+            if (_context.Users.Any(u => u.Username == username))
+            {
+                ModelState.AddModelError("", "Username already exists.");
+                ViewBag.Roles = _context.Roles.ToList();
+                return View();
+            }
+
+            var user = new User
+            {
+                Username = username,
+                Password = password,
+                RoleId = roleId
+            };
+
+            _context.Users.Add(user);
+            _context.SaveChanges();
+
+            return RedirectToAction("Login");
+        }
+
+        public IActionResult Login()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public IActionResult Login(string username, string password)
+        {
+            var user = _context.Users.Include(u => u.Role)
+                .FirstOrDefault(u => u.Username == username && u.Password == password);
+
+            if (user != null)
+            {
+                HttpContext.Session.SetString("Username", user.Username);
+                HttpContext.Session.SetString("Role", user.Role.RoleName);
+
+                return RedirectToAction("Dashboard", "Home");
+            }
+
+            ModelState.AddModelError("", "Invalid username or password.");
+            return View();
+        }
+
+        public IActionResult Logout()
+        {
+            HttpContext.Session.Clear();
+            return RedirectToAction("Login");
+        }
+    }
+}
