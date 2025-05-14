@@ -82,7 +82,6 @@ Availability: https://learn.microsoft.com/en-us/aspnet/core/mvc/models/model-bin
                 return RedirectToAction(nameof(Index));
       
 
-            // Repopulate ViewBag if model state is invalid
             var farmers = _context.Users
                 .Include(u => u.Role)
                 .Where(u => u.Role.RoleName == "Farmer")

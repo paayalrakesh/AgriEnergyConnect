@@ -15,7 +15,6 @@ namespace AgriEnergyConnect.Models
 
         public string ContactNumber { get; set; }
 
-        // Link to User (Optional if Farmers are Users)
         public int UserId { get; set; }
         public User User { get; set; }
     }
