@@ -1,53 +1,39 @@
 ﻿@model IEnumerable<AgriEnergyConnect.Models.FarmerProfile>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Farmer Profiles";
 }
 
-<h1>Index</h1>
+<h1 class="mb-4">Farmer Profiles</h1>
 
 <p>
-    <a asp-action="Create">Create New</a>
+    <a asp-action="Create" class="btn btn-primary rounded-pill">+ Add New Farmer</a>
 </p>
-<table class="table">
-    <thead>
+
+<table class="table table-bordered table-hover">
+    <thead class="table-success">
         <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.FullName)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Region)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ContactNumber)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.User)
-            </th>
-            <th></th>
+            <th>@Html.DisplayNameFor(model => model.FullName)</th>
+            <th>@Html.DisplayNameFor(model => model.Region)</th>
+            <th>@Html.DisplayNameFor(model => model.ContactNumber)</th>
+            <th>Username</th>
+            <th>Actions</th>
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.FullName)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Region)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ContactNumber)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.User.Username)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.FarmerProfileId">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.FarmerProfileId">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.FarmerProfileId">Delete</a>
-            </td>
-        </tr>
-}
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@Html.DisplayFor(modelItem => item.FullName)</td>
+                <td>@Html.DisplayFor(modelItem => item.Region)</td>
+                <td>@Html.DisplayFor(modelItem => item.ContactNumber)</td>
+                <td>@item.User?.Username</td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.FarmerProfileId" class="btn btn-sm btn-warning rounded-pill">Edit</a>
+                    <a asp-action="Details" asp-route-id="@item.FarmerProfileId" class="btn btn-sm btn-info rounded-pill mx-1">Details</a>
+                    <a asp-action="Delete" asp-route-id="@item.FarmerProfileId" class="btn btn-sm btn-danger rounded-pill">Delete</a>
+                </td>
+            </tr>
+        }
     </tbody>
 </table>

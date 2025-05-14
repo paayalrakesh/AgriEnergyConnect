@@ -19,18 +19,32 @@ namespace AgriEnergyConnect.Controllers
 
         public async Task<IActionResult> Index(string categoryFilter, DateTime? startDate, DateTime? endDate)
         {
-            var query = _context.Products.Include(p => p.User).AsQueryable();
+            var products = _context.Products.Include(p => p.User).AsQueryable();
+
+            var role = HttpContext.Session.GetString("Role");
+            var userIdStr = HttpContext.Session.GetString("UserId");
+
+            if (role == "Farmer" && int.TryParse(userIdStr, out int userId))
+            {
+                products = products.Where(p => p.UserId == userId);
+            }
 
             if (!string.IsNullOrEmpty(categoryFilter))
-                query = query.Where(p => p.Category.Contains(categoryFilter));
+            {
+                products = products.Where(p => p.Category.Contains(categoryFilter));
+            }
 
             if (startDate.HasValue)
-                query = query.Where(p => p.ProductionDate >= startDate.Value);
+            {
+                products = products.Where(p => p.ProductionDate >= startDate.Value);
+            }
 
             if (endDate.HasValue)
-                query = query.Where(p => p.ProductionDate <= endDate.Value);
+            {
+                products = products.Where(p => p.ProductionDate <= endDate.Value);
+            }
 
-            return View(await query.ToListAsync());
+            return View(await products.ToListAsync());
         }
 
 

@@ -58,6 +58,7 @@ namespace AgriEnergyConnect.Controllers
             {
                 HttpContext.Session.SetString("Username", user.Username);
                 HttpContext.Session.SetString("Role", user.Role.RoleName);
+                HttpContext.Session.SetString("UserId", user.UserId.ToString());
 
                 return RedirectToAction("Dashboard", "Home");
             }
