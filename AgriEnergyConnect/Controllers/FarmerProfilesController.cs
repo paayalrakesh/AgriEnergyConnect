@@ -58,14 +58,12 @@ namespace AgriEnergyConnect.Controllers
             if (HttpContext.Session.GetString("Role") != "Employee")
                 return RedirectToAction("Login", "Account");
 
-            if (ModelState.IsValid)
-            {
                 _context.Add(farmerProfile);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
-            }
+      
 
-            // If we reach this point, we need to refill the dropdown
+            // Repopulate ViewBag if model state is invalid
             var farmers = _context.Users
                 .Include(u => u.Role)
                 .Where(u => u.Role.RoleName == "Farmer")
@@ -76,6 +74,7 @@ namespace AgriEnergyConnect.Controllers
 
             return View(farmerProfile);
         }
+
 
 
         public async Task<IActionResult> Edit(int? id)
