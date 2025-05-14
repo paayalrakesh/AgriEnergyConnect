@@ -32,6 +32,16 @@ namespace AgriEnergyConnect.Controllers
                 .FirstOrDefaultAsync(m => m.FarmerProfileId == id);
             return farmerProfile == null ? NotFound() : View(farmerProfile);
         }
+
+
+        /*
+Title: Entity Framework Core - Relationships and Navigation Properties
+Author: Microsoft Docs
+Date: 2023
+Code version: EF Core 6
+Availability: https://learn.microsoft.com/en-us/ef/core/modeling/relationships/
+*/
+
         // GET: FarmerProfiles/Create
         public IActionResult Create()
         {
@@ -49,6 +59,15 @@ namespace AgriEnergyConnect.Controllers
 
             return View();
         }
+
+
+        /*
+Title: Model Binding and Validation in ASP.NET Core
+Author: Microsoft Docs
+Date: 2023
+Code version: ASP.NET Core 6
+Availability: https://learn.microsoft.com/en-us/aspnet/core/mvc/models/model-binding?view=aspnetcore-6.0
+*/
 
         // POST: FarmerProfiles/Create
         [HttpPost]

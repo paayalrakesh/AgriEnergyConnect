@@ -8,6 +8,13 @@ using System.Threading.Tasks;
 
 namespace AgriEnergyConnect.Controllers
 {
+    /*
+Title: Filtering Records in Entity Framework Core
+Author: EntityFrameworkTutorial.net
+Date: 2022
+Code version: EF Core 6
+Availability: https://entityframeworktutorial.net/efcore/querying-data-in-ef-core.aspx
+*/
     public class ProductsController : Controller
     {
         private readonly AppDbContext _context;

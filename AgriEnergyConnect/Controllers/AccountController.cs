@@ -20,6 +20,14 @@ namespace AgriEnergyConnect.Controllers
             return View();
         }
 
+        /*
+Title: ASP.NET Core MVC Authentication without Identity
+Author: Code Maze
+Date: 14 July 2023
+Code version: 1
+Availability: https://code-maze.com/aspnetcore-authentication-without-identity/
+*/
+
         [HttpPost]
         public IActionResult Register(string username, string password, int roleId)
         {
@@ -47,6 +55,14 @@ namespace AgriEnergyConnect.Controllers
         {
             return View();
         }
+
+        /*
+Title: Working with Sessions in ASP.NET Core
+Author: Microsoft Learn
+Date: 2023
+Code version: 6
+Availability: https://learn.microsoft.com/en-us/aspnet/core/fundamentals/app-state?view=aspnetcore-6.0
+*/
 
         [HttpPost]
         public IActionResult Login(string username, string password)

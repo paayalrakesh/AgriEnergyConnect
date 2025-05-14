@@ -4,6 +4,13 @@ using System.Diagnostics;
 
 namespace AgriEnergyConnect.Controllers
 {
+    /*
+Title: Use Logging in ASP.NET Core
+Author: Microsoft Learn
+Date: 2023
+Code version: .NET 6
+Availability: https://learn.microsoft.com/en-us/aspnet/core/fundamentals/logging/?view=aspnetcore-6.0
+*/
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
