@@ -17,18 +17,22 @@ namespace AgriEnergyConnect.Controllers
             _context = context;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string categoryFilter, DateTime? startDate, DateTime? endDate)
         {
-            string role = HttpContext.Session.GetString("Role");
-            int? currentUserId = _context.Users.FirstOrDefault(u => u.Username == HttpContext.Session.GetString("Username"))?.UserId;
-
             var query = _context.Products.Include(p => p.User).AsQueryable();
 
-            if (role == "Farmer" && currentUserId.HasValue)
-                query = query.Where(p => p.UserId == currentUserId.Value);
+            if (!string.IsNullOrEmpty(categoryFilter))
+                query = query.Where(p => p.Category.Contains(categoryFilter));
+
+            if (startDate.HasValue)
+                query = query.Where(p => p.ProductionDate >= startDate.Value);
+
+            if (endDate.HasValue)
+                query = query.Where(p => p.ProductionDate <= endDate.Value);
 
             return View(await query.ToListAsync());
         }
+
 
         public async Task<IActionResult> Details(int? id)
         {

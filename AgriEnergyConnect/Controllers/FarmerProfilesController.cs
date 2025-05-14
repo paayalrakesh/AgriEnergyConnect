@@ -5,6 +5,7 @@ using AgriEnergyConnect.Models;
 using Microsoft.AspNetCore.Http;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace AgriEnergyConnect.Controllers
 {
@@ -31,37 +32,51 @@ namespace AgriEnergyConnect.Controllers
                 .FirstOrDefaultAsync(m => m.FarmerProfileId == id);
             return farmerProfile == null ? NotFound() : View(farmerProfile);
         }
-
+        // GET: FarmerProfiles/Create
         public IActionResult Create()
         {
             if (HttpContext.Session.GetString("Role") != "Employee")
                 return RedirectToAction("Login", "Account");
 
+            // Populate dropdown with Farmer users
+            var farmers = _context.Users
+                .Include(u => u.Role)
+                .Where(u => u.Role.RoleName == "Farmer")
+                .Select(u => new { u.UserId, u.Username })
+                .ToList();
+
+            ViewData["UserId"] = new SelectList(farmers, "UserId", "Username");
+
             return View();
         }
 
+        // POST: FarmerProfiles/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(FarmerProfile farmerProfile)
+        public async Task<IActionResult> Create([Bind("FarmerProfileId,FullName,Region,ContactNumber,UserId")] FarmerProfile farmerProfile)
         {
             if (HttpContext.Session.GetString("Role") != "Employee")
                 return RedirectToAction("Login", "Account");
 
             if (ModelState.IsValid)
             {
-                // Assign to existing Farmer User
-                var farmerUser = await _context.Users.FirstOrDefaultAsync(u => u.Role.RoleName == "Farmer");
-                if (farmerUser != null)
-                {
-                    farmerProfile.UserId = farmerUser.UserId;
-                    _context.Add(farmerProfile);
-                    await _context.SaveChangesAsync();
-                    return RedirectToAction(nameof(Index));
-                }
+                _context.Add(farmerProfile);
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Index));
             }
+
+            // If we reach this point, we need to refill the dropdown
+            var farmers = _context.Users
+                .Include(u => u.Role)
+                .Where(u => u.Role.RoleName == "Farmer")
+                .Select(u => new { u.UserId, u.Username })
+                .ToList();
+
+            ViewData["UserId"] = new SelectList(farmers, "UserId", "Username", farmerProfile.UserId);
 
             return View(farmerProfile);
         }
+
 
         public async Task<IActionResult> Edit(int? id)
         {

@@ -4,69 +4,59 @@
     ViewData["Title"] = "Index";
 }
 
-<h1>Index</h1>
+<h1 class="mb-4">Product List</h1>
 
 @if (Context.Session.GetString("Role") == "Employee")
 {
-    <form method="get" class="mb-4">
-        <div class="form-group">
-            <label>Filter by Category:</label>
-            <input type="text" name="categoryFilter" class="form-control" />
+    <form asp-controller="Products" asp-action="Index" method="get" class="mb-4 border rounded p-3 bg-light">
+        <div class="row mb-2">
+            <div class="col-md-4">
+                <label class="form-label">Category:</label>
+                <input type="text" name="categoryFilter" class="form-control" placeholder="e.g. Vegetables" />
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Start Date:</label>
+                <input type="date" name="startDate" class="form-control" />
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">End Date:</label>
+                <input type="date" name="endDate" class="form-control" />
+            </div>
+            <div class="col-md-2 d-flex align-items-end">
+                <button type="submit" class="btn btn-success w-100">Apply Filter</button>
+            </div>
         </div>
-        <div class="form-group">
-            <label>Start Date:</label>
-            <input type="date" name="startDate" class="form-control" />
-        </div>
-        <div class="form-group">
-            <label>End Date:</label>
-            <input type="date" name="endDate" class="form-control" />
-        </div>
-        <button type="submit" class="btn btn-primary mt-2">Apply Filter</button>
     </form>
 }
 
 <p>
-    <a asp-action="Create">Create New</a>
+    <a asp-action="Create" class="btn btn-primary rounded-pill">+ Add New Product</a>
 </p>
-<table class="table">
-    <thead>
+
+<table class="table table-bordered table-hover">
+    <thead class="table-success">
         <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Name)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Category)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ProductionDate)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.User)
-            </th>
-            <th></th>
+            <th>@Html.DisplayNameFor(model => model.Name)</th>
+            <th>@Html.DisplayNameFor(model => model.Category)</th>
+            <th>@Html.DisplayNameFor(model => model.ProductionDate)</th>
+            <th>@Html.DisplayNameFor(model => model.User)</th>
+            <th>Actions</th>
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Name)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Category)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ProductionDate)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.User.Password)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.ProductId">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.ProductId">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.ProductId">Delete</a>
-            </td>
-        </tr>
-}
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@Html.DisplayFor(modelItem => item.Name)</td>
+                <td>@Html.DisplayFor(modelItem => item.Category)</td>
+                <td>@item.ProductionDate.ToString("yyyy-MM-dd")</td>
+                <td>@item.User?.Username</td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.ProductId" class="btn btn-sm btn-warning rounded-pill">Edit</a>
+                    <a asp-action="Details" asp-route-id="@item.ProductId" class="btn btn-sm btn-info rounded-pill mx-1">Details</a>
+                    <a asp-action="Delete" asp-route-id="@item.ProductId" class="btn btn-sm btn-danger rounded-pill">Delete</a>
+                </td>
+            </tr>
+        }
     </tbody>
 </table>
