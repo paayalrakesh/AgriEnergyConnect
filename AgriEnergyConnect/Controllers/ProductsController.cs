@@ -5,6 +5,7 @@ using AgriEnergyConnect.Models;
 using Microsoft.AspNetCore.Http;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace AgriEnergyConnect.Controllers
 {
@@ -67,6 +68,16 @@ Availability: https://entityframeworktutorial.net/efcore/querying-data-in-ef-cor
             if (HttpContext.Session.GetString("Role") != "Farmer")
                 return RedirectToAction("Login", "Account");
 
+            ViewBag.CategoryList = new SelectList(new List<string>
+    {
+        "Vegetables",
+        "Fruits",
+        "Grains",
+        "Dairy",
+        "Livestock",
+        "Other"
+    });
+
             return View();
         }
 
@@ -85,6 +96,16 @@ Availability: https://entityframeworktutorial.net/efcore/querying-data-in-ef-cor
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
+
+            ViewBag.CategoryList = new SelectList(new List<string>
+    {
+        "Vegetables",
+        "Fruits",
+        "Grains",
+        "Dairy",
+        "Livestock",
+        "Other"
+    });
 
             return View(product);
         }
