@@ -65,7 +65,7 @@ This project is built using the following technologies:
 
 For a quick overview and a live demo of the application's features, watch the video below. Click the thumbnail to play.
 
-[![Watch the video]()
+[![Watch the video](https://youtu.be/OrfeuxC1jDg?si=hwDtHi9NFMdrIapD)
 
 ---
 
